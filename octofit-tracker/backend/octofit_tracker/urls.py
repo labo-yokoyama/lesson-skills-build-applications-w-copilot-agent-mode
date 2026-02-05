@@ -20,6 +20,7 @@ from rest_framework import routers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+import os
 from .views import TeamViewSet, ActivityViewSet, LeaderboardViewSet, WorkoutViewSet
 
 
@@ -31,11 +32,14 @@ router.register(r'workouts', WorkoutViewSet)
 
 @api_view(['GET'])
 def api_root(request, format=None):
+    # 環境変数からCODESPACE_NAMEを取得
+    codespace_name = os.environ.get('CODESPACE_NAME', '')
+    base_url = f"https://{codespace_name}-8000.app.github.dev" if codespace_name else request.build_absolute_uri('/')[:-1]
     return Response({
-        'teams': reverse('team-list', request=request, format=format),
-        'activities': reverse('activity-list', request=request, format=format),
-        'leaderboard': reverse('leaderboard-list', request=request, format=format),
-        'workouts': reverse('workout-list', request=request, format=format),
+        'teams': base_url + reverse('team-list', request=request, format=format),
+        'activities': base_url + reverse('activity-list', request=request, format=format),
+        'leaderboard': base_url + reverse('leaderboard-list', request=request, format=format),
+        'workouts': base_url + reverse('workout-list', request=request, format=format),
     })
 
 urlpatterns = [
